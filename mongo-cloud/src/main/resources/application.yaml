@@ -1,0 +1,5 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb+srv://daniel:1702051@cluster0.y89vhxb.mongodb.net/?retryWrites=true&w=majority
+      database: fundatec
