@@ -1,0 +1,17 @@
+version: '3.1'
+services:
+  db-batch:
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: batchdb
+      POSTGRES_USER: batchdb
+      POSTGRES_PASSWORD: batchdb
+
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - db-batch:/var/lib/postgresql/data
+    ports:
+      - "5435:5432"
+volumes:
+  db-batch:

@@ -1,0 +1,24 @@
+
+# Spring Boot configuration
+spring:
+
+  # Database
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5435/batchdb
+    username: batchdb
+    password: batchdb
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+    generate-ddl: true
+  batch:
+    jdbc:
+      initialize-schema: always
+      schema: classpath:/org/springframework/batch/core/schema-postgresql.sql
+server:
+  port: 8080
