@@ -6,19 +6,22 @@ import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.integration.async.AsyncItemProcessor;
 import org.springframework.batch.integration.async.AsyncItemWriter;
+import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.batch.item.database.builder.JpaItemWriterBuilder;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -40,10 +43,10 @@ public class ProdutoJobConfig {
    * o reader, processor, writer... coisas necessárias para o step e que serão utilizadas na leitura do arquivo.
    */
   @Bean
-  public Step salvarDoArquivoNoBanco() {
+  public Step salvarDoArquivoNoBanco(ItemReader<ProdutoDTO> produtoDTOReader) {
     return new StepBuilder("salvarDoArquivoNoBanco", jobRepository)
         .<ProdutoDTO, Future<Produto>>chunk(10, transactionManager)
-        .reader(produtoFileReader())
+        .reader(produtoDTOReader)
         .processor(processadorDeItensAssincrono())
         .writer(produtoJpaAsyncWriter())
         .taskExecutor(taskExecutor())
@@ -55,10 +58,10 @@ public class ProdutoJobConfig {
    * Aqui criamos um job, que nada mais seria do que uma tarefa, essa em específico vai ler um arquivo e salvar suas
    * informações no banco, tal como o seu step (etapa) o faz acima */
   @Bean
-  public Job importarProdutos() {
+  public Job importarProdutos(Step salvarDoArquivoNoBanco) {
     return new JobBuilder("importarProdutos", jobRepository)
         .incrementer(new RunIdIncrementer())
-        .start(salvarDoArquivoNoBanco())
+        .start(salvarDoArquivoNoBanco)
         .build();
   }
 
@@ -71,9 +74,11 @@ public class ProdutoJobConfig {
    *
    * */
   @Bean
-  public FlatFileItemReader<ProdutoDTO> produtoFileReader() {
+  @StepScope
+  public FlatFileItemReader<ProdutoDTO> produtoFileReader(@Value("#{jobParameters['input.file.name']}") String resource) {
+
     return new FlatFileItemReaderBuilder<ProdutoDTO>()
-        .resource(new ClassPathResource("/data/lista-itens-loja-spring-batch.csv"))
+        .resource(new FileSystemResource(resource))
         .name("produtoFileReader")
         .delimited()
         .delimiter(",")
