@@ -1,6 +1,7 @@
 package com.drodrigues17.batch.batch;
 
 import com.drodrigues17.batch.dto.ProdutoDTO;
+import com.drodrigues17.batch.handler.PoliticaDeTratamento;
 import com.drodrigues17.batch.model.Produto;
 import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +38,7 @@ public class ProdutoJobConfig {
   private final ProdutoProcessor produtoProcessor;
   private final JobRepository jobRepository;
   private final PlatformTransactionManager transactionManager;
+  private final PoliticaDeTratamento politicaDeTratamento;
 
   /**
    * Aqui criamos um step (um passo) do job, que nada mais seria que uma etapa dessa tarefa, nesse step passamos coisas como
@@ -49,6 +51,8 @@ public class ProdutoJobConfig {
         .reader(produtoDTOReader)
         .processor(processadorDeItensAssincrono())
         .writer(produtoJpaAsyncWriter())
+        .faultTolerant()
+        .skipPolicy(politicaDeTratamento)
         .taskExecutor(taskExecutor())
         .build();
   }
@@ -71,7 +75,6 @@ public class ProdutoJobConfig {
    * Após isso, informamos que o arquivo é delimitado e informamos qual o delimitador dos campos, nesse caso é o ponto e virgula
    * depois passamos os nomes dos campos e informamos o número de linhas queremos pular,
    * nesse caso pulamos a primeira linha que seria o cabeçalho. Por fim informamos qual o "tipo alvo" nessa desserialização, que seria o produtoDto
-   *
    * */
   @Bean
   @StepScope
