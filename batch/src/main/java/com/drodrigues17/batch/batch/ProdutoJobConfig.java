@@ -1,5 +1,7 @@
 package com.drodrigues17.batch.batch;
 
+import com.drodrigues17.batch.batch.listeners.ExecucaoPassoListener;
+import com.drodrigues17.batch.batch.listeners.ExecucaoTarefaListener;
 import com.drodrigues17.batch.dto.ProdutoDTO;
 import com.drodrigues17.batch.handler.PoliticaDeTratamento;
 import com.drodrigues17.batch.model.Produto;
@@ -39,6 +41,8 @@ public class ProdutoJobConfig {
   private final JobRepository jobRepository;
   private final PlatformTransactionManager transactionManager;
   private final PoliticaDeTratamento politicaDeTratamento;
+  private final ExecucaoPassoListener execucaoPassoListener;
+  private final ExecucaoTarefaListener execucaoTarefaListener;
 
   /**
    * Aqui criamos um step (um passo) do job, que nada mais seria que uma etapa dessa tarefa, nesse step passamos coisas como
@@ -53,6 +57,7 @@ public class ProdutoJobConfig {
         .writer(produtoJpaAsyncWriter())
         .faultTolerant()
         .skipPolicy(politicaDeTratamento)
+        .listener(execucaoPassoListener)
         .taskExecutor(taskExecutor())
         .build();
   }
@@ -66,6 +71,7 @@ public class ProdutoJobConfig {
     return new JobBuilder("importarProdutos", jobRepository)
         .incrementer(new RunIdIncrementer())
         .start(salvarDoArquivoNoBanco)
+        .listener(execucaoTarefaListener)
         .build();
   }
 

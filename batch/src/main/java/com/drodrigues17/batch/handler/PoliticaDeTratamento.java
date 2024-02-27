@@ -13,8 +13,10 @@ public class PoliticaDeTratamento implements SkipPolicy {
 
   @Override
   public boolean shouldSkip(Throwable exception, long skipCount) throws SkipLimitExceededException {
-
-    int limiteIgnorarException = 10;
+/**
+ * Aqui deixei um limite de vezes que ele pode ignorar os erro baixo apenas para ver o arquivo com erro cair na pasta de rro
+ * */
+    int limiteIgnorarException = 1;
 
     switch (exception) {
       case DestinationResolutionException e when skipCount <= limiteIgnorarException -> {

@@ -29,7 +29,7 @@ import java.time.Duration;
 @RequiredArgsConstructor
 public class ProdutoIntegrationConfig {
 
-  @Value("${variaveis_ambiente.pasta_produtos}")
+  @Value("${variaveis_ambiente.arquivos_esperando_processamento}")
   private String pastaProdutos;
 
   private final Job importarProdutos;

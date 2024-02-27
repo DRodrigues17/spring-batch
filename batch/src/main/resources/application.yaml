@@ -25,4 +25,4 @@ server:
   port: 8080
 
 variaveis_ambiente:
-  pasta_produtos: "C:\\Users\\daniel.rodrigues\\Downloads\\projetos\\POCs\\batch\\src\\main\\resources\\arquivos-processamento-automatico"
+  arquivos_esperando_processamento: "C:\\Users\\daniel.rodrigues\\Downloads\\projetos\\POCs\\batch\\src\\main\\resources\\arquivos-esperando-processamento"
