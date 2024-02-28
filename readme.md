@@ -1,4 +1,5 @@
-# POCs 
+Nesse projeto estou usando spring batch, uma biblioteca do spring para processar arquivos em lote.
 
-Neste repositório deixo minhas POCs(provas de conceito) a fim de aprender diversos temas no backend, frontend e mobile, 
-geralmente tendo no nome da pasta o tópico estudado e a linguagem.
+tomei como base pros meus estudos a playlist abaixo 
+
+https://youtube.com/playlist?list=PLCMtYeD-JHQTmBHIeZXNFL7d0RrZtYgbV&feature=shared
