@@ -7,6 +7,7 @@ import com.drodrigues17.batch.handler.PoliticaDeTratamento;
 import com.drodrigues17.batch.model.Produto;
 import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepScope;
@@ -21,11 +22,13 @@ import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.batch.item.database.builder.JpaItemWriterBuilder;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
+import org.springframework.batch.item.kafka.KafkaItemWriter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
@@ -43,6 +46,7 @@ public class ProdutoJobConfig {
   private final PoliticaDeTratamento politicaDeTratamento;
   private final ExecucaoPassoListener execucaoPassoListener;
   private final ExecucaoTarefaListener execucaoTarefaListener;
+  private final KafkaTemplate<String,Produto> produtoKafkaTemplate;
 
   /**
    * Aqui criamos um step (um passo) do job, que nada mais seria que uma etapa dessa tarefa, nesse step passamos coisas como
@@ -55,6 +59,7 @@ public class ProdutoJobConfig {
         .reader(produtoDTOReader)
         .processor(processadorDeItensAssincrono())
         .writer(produtoJpaAsyncWriter())
+        .writer(produtoKafkaAsyncWriter())
         .faultTolerant()
         .skipPolicy(politicaDeTratamento)
         .listener(execucaoPassoListener)
@@ -84,7 +89,7 @@ public class ProdutoJobConfig {
    * */
   @Bean
   @StepScope
-  public FlatFileItemReader<ProdutoDTO> produtoFileReader(@Value("#{jobParameters['input.file.name']}") String resource) {
+  public FlatFileItemReader<ProdutoDTO> produtoReader(@Value("#{jobParameters['input.file.name']}") String resource) {
 
     return new FlatFileItemReaderBuilder<ProdutoDTO>()
         .resource(new FileSystemResource(resource))
@@ -144,6 +149,28 @@ public class ProdutoJobConfig {
     var asyncItemWriter = new AsyncItemWriter<Produto>();
     asyncItemWriter.setDelegate(produtoJpaItemWriter());
     return asyncItemWriter;
+  }
+
+
+  public AsyncItemWriter<Produto> produtoKafkaAsyncWriter() {
+    var asyncItemWriter = new AsyncItemWriter<Produto>();
+    asyncItemWriter.setDelegate(produtoKafkaItemWriter());
+    return asyncItemWriter;
+  }
+
+  /**
+   * Esse writer é responsável basicamente por enviar coisas para o kafka
+   * */
+  //TODO repositório com kafka para passar um link aqui explicando o que está sendo feito
+  @Bean
+  @SneakyThrows
+  public KafkaItemWriter<String,Produto> produtoKafkaItemWriter(){
+    KafkaItemWriter<String,Produto> kafkaItemWriter = new KafkaItemWriter<>();
+    kafkaItemWriter.setKafkaTemplate(produtoKafkaTemplate);
+    kafkaItemWriter.setItemKeyMapper(produto -> String.valueOf(produto.getId()));
+    kafkaItemWriter.setDelete(Boolean.FALSE);
+    kafkaItemWriter.afterPropertiesSet();
+    return kafkaItemWriter;
   }
 
 }

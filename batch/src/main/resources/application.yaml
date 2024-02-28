@@ -21,6 +21,19 @@ spring:
       schema: classpath:/org/springframework/batch/core/schema-postgresql.sql
     job:
       enabled: false  # Desabilita a execução automática de jobs
+  kafka:
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: '*'
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+    template:
+      default-topic: produtos
+
 server:
   port: 8080
 
