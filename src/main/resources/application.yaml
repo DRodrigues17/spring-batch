@@ -20,7 +20,7 @@ spring:
       initialize-schema: always
       schema: classpath:/org/springframework/batch/core/schema-postgresql.sql
     job:
-      enabled: false  # Desabilita a execução automática de jobs
+      enabled: true  # Habilita ou desabilita a execução automática de jobs
   kafka:
     producer:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -38,4 +38,4 @@ server:
   port: 8080
 
 variaveis_ambiente:
-  arquivos_esperando_processamento: "C:\\Users\\daniel.rodrigues\\Downloads\\projetos\\POCs\\batch\\src\\main\\resources\\arquivos-esperando-processamento"
+  arquivos_esperando_processamento: "arquivos-esperando-processamento"

@@ -158,10 +158,13 @@ public class ProdutoJobConfig {
     return asyncItemWriter;
   }
 
+
   /**
-   * Esse writer é responsável basicamente por enviar coisas para o kafka
-   * */
-  //TODO repositório com kafka para passar um link aqui explicando o que está sendo feito
+   * Este Writer é responsável por enviar mensagens para o Kafka.
+   * Para entender mais sobre o Kafka, consulte a wiki do repositório.
+   * @see <a href="https://github.com/DRodrigues17/kafka">https://github.com/DRodrigues17/kafka</a>
+   */
+
   @Bean
   @SneakyThrows
   public KafkaItemWriter<String,Produto> produtoKafkaItemWriter(){

@@ -1,12 +1,14 @@
 package com.drodrigues17.springbatch.integration;
 
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.launch.support.TaskExecutorJobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.integration.launch.JobLaunchingGateway;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.integration.channel.DirectChannel;
@@ -55,15 +57,16 @@ public class ProdutoIntegrationConfig {
    * Foi adicionado um filtro, para prevenir um erro muito comum onde alguns arquivos podem não estar num estado aceitável
    * para processamento, então esse filtro vai trazer apenas os que estão prontos para leitura.
    */
+  @SneakyThrows
   public FileReadingMessageSource fileReadingMessageSource() {
     var messageSource = new FileReadingMessageSource();
-    messageSource.setDirectory(new File(pastaProdutos));
+    messageSource.setDirectory(new ClassPathResource("arquivos-esperando-processamento").getFile());
     messageSource.setFilter(new SimplePatternFileListFilter("*.csv"));
     return messageSource;
   }
 
   /**
-   * Um canal que invoca uma unica subscrição prqa cada mensagem enviada, essa invocação irá acontecer na thread do
+   * Um canal que invoca uma unica subscrição pra cada mensagem enviada, essa invocação irá acontecer na thread do
    * remetente.
    */
   public DirectChannel fileIn() {
